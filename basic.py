@@ -108,12 +108,8 @@ def expanded_classifier(X_train, y_train, X_test, y_test, l, a, n):
     return w, confusion
 
 
-def main():
-    print("Loading data...")
-    X = np.loadtxt('X.txt')
-    y = np.loadtxt('y.txt')
-
-    print("Randomly partitioning into trainign and test sets")
+def randomly_partition(X, y, n_train):
+    """randomly partitions into training and test sets"""
     # random permutation
     permutation = np.random.permutation(X.shape[ 0 ])
     X = X[ permutation, : ]
@@ -126,6 +122,18 @@ def main():
     y_train = y[ 0 : n_train ]
     y_test = y[ n_train : ]
 
+    return X_train, y_train, X_test, y_test
+
+
+def main():
+    print("Loading data...")
+    X = np.loadtxt('X.txt')
+    y = np.loadtxt('y.txt')
+
+    print("Randomly partitioning into training and test sets")
+    n_train = 800
+    X_train, y_train, X_test, y_test = randomly_partition(X, y, n_train)
+
     print("Plotting data basic...")
     plot_data(X, y)
 
@@ -136,7 +144,7 @@ def main():
 
     print("Expanded classifiers:")
     l = [0.01, 0.1, 1]
-    a = [0.01, 0.01, 0.001]
+    a = [0.01, 0.01, 0.0005]
     n = [1000, 1000, 1000]
 
     for i in range(0, 3):
