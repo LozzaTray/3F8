@@ -89,3 +89,33 @@ def fit_w(X_tilde_train, y_train, X_tilde_test, y_test, n_steps, alpha):
         ll_test[ i ] = compute_average_ll(X_tilde_test, y_test, w)
 
     return w, ll_train, ll_test
+
+
+def compute_confusion_array(X_tilde, w, y):
+    """computes confusion array"""
+    output_probs = predict(X_tilde, w)
+    assignments = (output_probs > 0.5)
+    values = np.add(assignments, 2*y)
+
+    types = [0, 0, 0, 0] # true negative = 0 , false positive = 1, false negative = 2, true positive = 3
+    for i in range(0,4):
+        types[i] = (values == i).sum()
+
+    return types
+
+
+def randomly_partition(X, y, n_train):
+    """randomly partitions into training and test sets"""
+    # random permutation
+    permutation = np.random.permutation(X.shape[ 0 ])
+    X = X[ permutation, : ]
+    y = y[ permutation ]
+
+    # split into training and test sets
+    n_train = 800
+    X_train = X[ 0 : n_train, : ]
+    X_test = X[ n_train :, : ]
+    y_train = y[ 0 : n_train ]
+    y_test = y[ n_train : ]
+
+    return X_train, y_train, X_test, y_test

@@ -98,3 +98,21 @@ def plot_ll(ll_training, ll_test, title=''):
     plt.legend()
     plt.show()
 
+
+def display_confusion_array(conf):
+    """
+    Prints out normalised confusion matrix
+    conf - array of error types [tn, fp, fn, tp]
+    """
+    true_zeroes = conf[0] + conf[1]
+    true_ones = conf[2] + conf[3]
+
+    conf[0] = conf[0] / true_zeroes
+    conf[1] = conf[1] / true_zeroes
+
+    conf[2] = conf[2] / true_ones
+    conf[3] = conf[3] / true_ones
+
+    print("Confusion array:")
+    print("| tn | fp |\n| fn | tp |\n")
+    print("| {} | {} |\n| {} | {} |".format(conf[0], conf[1], conf[2], conf[3]))
