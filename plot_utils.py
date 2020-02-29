@@ -43,7 +43,7 @@ def plot_data(X, y):
 
     Output: Nothing.
     """
-    xx, yy = plot_data_internal(X, y)
+    plot_data_internal(X, y)
     plt.show()
 
 

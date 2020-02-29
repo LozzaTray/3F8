@@ -82,13 +82,10 @@ def fit_w(X_tilde_train, y_train, X_tilde_test, y_test, n_steps, alpha):
     ll_train = np.zeros(n_steps)
     ll_test = np.zeros(n_steps)
     for i in range(n_steps):
-        sigmoid_value = predict(X_tilde_train, w)
-
         ll_grad = compute_ll_grad(X_tilde_train, y_train, w)
-        w = w + alpha * ll_grad# Gradient-based update rule for w. To be completed by the student
+        w = w + alpha * ll_grad
 
         ll_train[ i ] = compute_average_ll(X_tilde_train, y_train, w)
         ll_test[ i ] = compute_average_ll(X_tilde_test, y_test, w)
-        #print(ll_train[ i ], ll_test[ i ])
 
     return w, ll_train, ll_test

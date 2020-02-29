@@ -1,6 +1,3 @@
-# This is the auxiliary code for the 3F8 coursework. Some parts are missing and
-# should be completed by the student. These are Marked with XXX
-
 import numpy as np
 from plot_utils import plot_data, plot_ll, plot_predictive_distribution
 from prob_utils import fit_w, predict, get_x_tilde
@@ -80,7 +77,7 @@ def linear_classifier(X_train, y_train, X_test, y_test):
     print("Computing linear classifier confusion on test data...")
     confusion = compute_confusion_array(X_tilde_test, w, y_test)
 
-    return w, confusion
+    return w, confusion, (ll_train[-1], ll_test[-1])
 
 
 def expanded_classifier(X_train, y_train, X_test, y_test, l, a, n):
@@ -105,7 +102,7 @@ def expanded_classifier(X_train, y_train, X_test, y_test, l, a, n):
     print("Computing classifier confusion on test data...")
     confusion = compute_confusion_array(X_tilde_test, w, y_test)
 
-    return w, confusion
+    return w, confusion, (ll_train[-1], ll_test[-1])
 
 
 def randomly_partition(X, y, n_train):
@@ -138,18 +135,18 @@ def main():
     plot_data(X, y)
 
     print("Linear classifier:")
-    w_lin, conf = linear_classifier(X_train, y_train, X_test, y_test)
+    w_lin, conf, ll_final = linear_classifier(X_train, y_train, X_test, y_test)
     display_confusion_array(conf)
     plot_predictive_distribution(X, y, w_lin)
 
     print("Expanded classifiers:")
     l = [0.01, 0.1, 1]
-    a = [0.01, 0.01, 0.0005]
+    a = [0.01, 0.01, 0.0001]
     n = [1000, 1000, 1000]
 
     for i in range(0, 3):
         expansion_function = lambda x: evaluate_basis_functions(l[i], x, X_train)
-        w_exp, conf = expanded_classifier(X_train, y_train, X_test, y_test, l=l[i], a=a[i], n=n[i])
+        w_exp, conf, ll_final = expanded_classifier(X_train, y_train, X_test, y_test, l=l[i], a=a[i], n=n[i])
         display_confusion_array(conf)
         plot_predictive_distribution(X, y, w_exp, expansion_function)
 
