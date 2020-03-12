@@ -1,5 +1,6 @@
 from prob_utils import logistic
 import numpy as np
+from scipy import optimize
 
 def kappa(sigma_squared):
     return (1 + np.pi * sigma_squared / 8) ** (-0.5)
@@ -21,3 +22,9 @@ def prediction(x, w_map, Sn):
     k = kappa(s_2)
     m = mu_a(x, w_map)
     return logistic(k * m)
+
+
+def find_map_and_hessian(objective_function, w_0):
+    inverted_fn = lambda x: (-1) * objective_function(x)
+    w_map, objective_min, diction  = optimize.fmin_l_bfgs_b(inverted_fn, w_0)
+    return w_map, None
