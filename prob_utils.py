@@ -104,6 +104,25 @@ def compute_confusion_array(X_tilde, w, y):
     return types
 
 
+def get_confusion_matrix(y_hat, y):
+    assignments = (y_hat > 0.5)
+    values = np.add(assignments, 2*y)
+
+    conf = [0, 0, 0, 0] # true negative = 0 , false positive = 1, false negative = 2, true positive = 3
+    for i in range(0,4):
+        conf[i] = (values == i).sum()
+
+    true_zeroes = conf[0] + conf[1]
+    true_ones = conf[2] + conf[3]
+
+    matrix = [ 
+        [conf[0] / true_zeroes , conf[1] / true_zeroes] ,
+        [conf[2] / true_ones , conf[3] / true_ones]
+    ]
+
+    return matrix
+
+
 def randomly_partition(X, y, n_train):
     """randomly partitions into training and test sets"""
     # random permutation
