@@ -1,30 +1,65 @@
-from prob_utils import logistic
+from prob_utils import logistic, predict
 import numpy as np
 from scipy import optimize
-
-def kappa(sigma_squared):
-    return (1 + np.pi * sigma_squared / 8) ** (-0.5)
+from functools import partial
 
 
-def mu_a(x, w_map):
-    wt_map = np.transpose(w_map)
-    return np.matmul(wt_map, x)
+def log_prior(w, var_0):
+    dim = len(w)
+    return - (np.dot(w, w) / (2*var_0)) - (dim/2) * np.log(2*np.pi*var_0)
 
 
-def sigma_squared_a(x, Sn):
-    xt = np.transpose(x)
-    Sn_x = np.matmul(Sn, x)
-    return np.matmul(xt, Sn_x)
+def log_likelihood(X_tilde, y, w):
+    output_prob = predict(X_tilde, w)
+    return np.sum(y * np.log(output_prob) + (1 - y) * np.log(1.0 - output_prob))
 
 
-def prediction(x, w_map, Sn):
-    s_2 = sigma_squared_a(x, Sn)
-    k = kappa(s_2)
-    m = mu_a(x, w_map)
-    return logistic(k * m)
+def minus_log_f(X_tilde, y, var_0, w):
+    return -(log_prior(w, var_0) + log_likelihood(X_tilde, y, w))
 
 
-def find_map_and_hessian(objective_function, w_0):
-    inverted_fn = lambda x: (-1) * objective_function(x)
-    w_map, objective_min, diction  = optimize.fmin_l_bfgs_b(inverted_fn, w_0)
-    return w_map, None
+def calc_hessian(X_tilde, w, var_0):
+    """
+    Returns hessian of log f evaluated at given w (in this case w_map)
+    """
+    dim = X_tilde.shape[1]
+    probs = predict(X_tilde, w)[:, np.newaxis] # turns into column matrix (vector)
+    prob_var_array = np.matmul(probs, np.transpose(1-probs))
+    diag = np.diag(np.diag(prob_var_array)) # extracts diagonal and keeps as matrix
+    X_tilde_transpose = np.transpose(X_tilde)
+    likelihood_term = np.matmul(X_tilde_transpose, np.matmul(diag, X_tilde))
+    prior_term = np.identity(dim) * (1/var_0)
+    return prior_term + likelihood_term 
+
+def calc_Z(f_max, hessian_inverse):
+    dim = hessian.shape[0]
+    det_A_inv = np.linalg.det(hessian_inverse)
+    numerator = (2*np.pi)**(dim/2)
+    return f_max * numerator * np.sqrt(det_A_inv)
+
+
+def find_map(X_tilde, y, var_0):
+    """
+    Returns map solution and value of f evaluated at w_map
+        return w_map, f_max, predictor_func
+    """
+    w_0 = np.random.randn(X_tilde.shape[ 1 ])
+    minus_log_f_partial = partial(minus_log_f, X_tilde, y, var_0)
+    w_map, min_minus_log_f, _diction = optimize.fmin_l_bfgs_b(minus_log_f_partial, w_0, approx_grad=True)
+    f_max = np.exp(-min_minus_log_f)
+    hessian = calc_hessian(X_tilde, w_map, var_0)
+    hessian_inverse = np.linalg.inv(hessian)
+    Z = 0 #calc_Z(f_max, hessian)
+    predictor_function = partial(predictive_dist, hessian_inverse, w_map)
+    return w_map, Z, predictor_function
+
+
+def predictive_dist(A_inverse, w_map, X_tilde):
+    """Predictive distribution for a new matrix X"""
+    X_tilde_T = np.transpose(X_tilde)
+    var_a = np.diag(np.matmul(X_tilde, np.matmul(A_inverse, X_tilde_T)))
+    denominator = np.sqrt(1 + (np.pi / 8) * var_a)
+    numerator = np.dot(X_tilde, w_map)
+    return logistic(np.divide(numerator, denominator))
+
+

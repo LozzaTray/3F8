@@ -74,6 +74,22 @@ def plot_predictive_distribution(X, y, w, map_inputs = lambda x : x, title=""):
     plt.show()
 
 
+def plot_predictive_general(X, y, predictor_func, map_inputs = lambda x : x, title=""):
+    if title == "":
+        title = "Predicitive Distribution"
+
+    xx, yy = plot_data_internal(X, y)
+    ax = plt.gca()
+    X_tilde = get_x_tilde(map_inputs(np.concatenate((xx.ravel().reshape((-1, 1)), yy.ravel().reshape((-1, 1))), 1)))
+    #X_tilde_true = get_x_tilde(map_inputs(X))
+    Z = predictor_func(X_tilde)
+    Z = Z.reshape(xx.shape)
+    cs2 = ax.contour(xx, yy, Z, cmap = 'RdBu', linewidths = 2)
+    plt.clabel(cs2, fmt = '%2.1f', colors = 'k', fontsize = 14)
+    plt.title(title)
+    plt.show()
+
+
 def plot_ll(ll_training, ll_test, title=''):
     """
     Function that plots the average log-likelihood returned by "fit_w"
