@@ -32,10 +32,9 @@ def calc_hessian(X_tilde, w, var_0):
     return prior_term + likelihood_term 
 
 def calc_Z(f_max, hessian_inverse):
-    dim = hessian.shape[0]
+    dim = hessian_inverse.shape[0]
     det_A_inv = np.linalg.det(hessian_inverse)
-    numerator = (2*np.pi)**(dim/2)
-    return f_max * numerator * np.sqrt(det_A_inv)
+    log_Z =  np.log(f_max) + (dim/2)* np.log(2*np.pi) + (1/2)*np.log(det_A_inv)
 
 
 def find_map(X_tilde, y, var_0):

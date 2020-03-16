@@ -1,8 +1,25 @@
 from plot_utils import plot_ll, plot_predictive_general, display_confusion_array
-from prob_utils import get_x_tilde, randomly_partition, get_confusion_matrix
+from prob_utils import get_x_tilde, randomly_partition, get_confusion_matrix, get_average_ll, predict
 from expanded_classifier import evaluate_basis_functions
 from bayesian import find_map
 import numpy as np
+
+
+def display_metrics(y_hat, y, message=""):
+    print(message)
+    print("########################")
+    
+    print("Confusion matrix:")
+    conf_matrix = get_confusion_matrix(y_hat, y)
+    print(conf_matrix)
+    
+    print("------------------------")
+
+    print("Average Log-Likelihood:")
+    ll = get_average_ll(y_hat, y)
+    print(ll)
+
+    print("########################\n")
 
 
 def ftr():
@@ -17,31 +34,30 @@ def ftr():
     l_arr = [0.1]
     var_0_arr = [1]
 
-    for i in range(0, len(l_arr)):
-        l = l_arr[i]
-        for j in range(0, len(var_0_arr)):
-            var_0 = var_0_arr[j]
-
-            print("Finding MAP in linear case...")
-            X_tilde_train_lin = get_x_tilde(X_train)
-            X_tilde_test_lin = get_x_tilde(X_test)
-            w_map_lin, Z_lin, predictor_func_lin = find_map(X_tilde_train_lin, y_train, var_0)
-            
-            probs_test = predictor_func_lin(X_tilde_test_lin)
-            conf_matrix = get_confusion_matrix(probs_test, y_test)
-            print("Linear confusion matrix")
-            print(conf_matrix)
-
-            plot_predictive_general(X, y, predictor_func_lin)
-
-            print("Expanding inputs l={}".format(l))
+    for l in l_arr:
+        for var_0 in var_0_arr:
+            print("l={} var_0={}".format(l, var_0))
             X_tilde_train = get_x_tilde(evaluate_basis_functions(l, X_train, X_train))
             X_tilde_test  = get_x_tilde(evaluate_basis_functions(l, X_test, X_train))
 
             print("Finding MAP on expanded inputs...")
-            w_map, Z, predictor_func = find_map(X_tilde_train, y_train, var_0)
+            w_map, Z, predict_laplace = find_map(X_tilde_train, y_train, var_0)
+            predict_map = lambda X: predict(X_tilde=X, w=w_map)
+
+            probs_test_laplace = predict_laplace(X_tilde_test)
+            display_metrics(probs_test_laplace, y_test, "Test laplace")
+            
+            probs_train_laplace = predict_laplace(X_tilde_train)
+            display_metrics(probs_train_laplace, y_train, "Train laplace")
+
+            probs_test_map = predict_map(X_tilde_test)
+            display_metrics(probs_test_map, y_test, "Test map")
+
+            probs_train_map = predict_map(X_tilde_train) 
+            display_metrics(probs_train_map, y_train, "Train map")
+
             expansion_function = lambda x: evaluate_basis_functions(l, x, X_train)
-            plot_predictive_general(X, y, predictor_func, expansion_function)
+            plot_predictive_general(X, y, predict_laplace, expansion_function)
 
 
 if __name__ == "__main__":

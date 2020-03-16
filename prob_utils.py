@@ -104,6 +104,23 @@ def compute_confusion_array(X_tilde, w, y):
     return types
 
 
+def randomly_partition(X, y, n_train):
+    """randomly partitions into training and test sets"""
+    # random permutation
+    permutation = np.random.permutation(X.shape[ 0 ])
+    X = X[ permutation, : ]
+    y = y[ permutation ]
+
+    # split into training and test sets
+    n_train = 800
+    X_train = X[ 0 : n_train, : ]
+    X_test = X[ n_train :, : ]
+    y_train = y[ 0 : n_train ]
+    y_test = y[ n_train : ]
+
+    return X_train, y_train, X_test, y_test
+
+
 def get_confusion_matrix(y_hat, y):
     assignments = (y_hat > 0.5)
     values = np.add(assignments, 2*y)
@@ -123,18 +140,5 @@ def get_confusion_matrix(y_hat, y):
     return matrix
 
 
-def randomly_partition(X, y, n_train):
-    """randomly partitions into training and test sets"""
-    # random permutation
-    permutation = np.random.permutation(X.shape[ 0 ])
-    X = X[ permutation, : ]
-    y = y[ permutation ]
-
-    # split into training and test sets
-    n_train = 800
-    X_train = X[ 0 : n_train, : ]
-    X_test = X[ n_train :, : ]
-    y_train = y[ 0 : n_train ]
-    y_test = y[ n_train : ]
-
-    return X_train, y_train, X_test, y_test
+def get_average_ll(y_hat, y):
+    return np.mean(y * np.log(y_hat) + (1 - y) * np.log(1.0 - y_hat))
