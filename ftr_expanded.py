@@ -31,8 +31,8 @@ def ftr():
     n_train = 800
     X_train, y_train, X_test, y_test = randomly_partition(X, y, n_train)
 
-    l_arr = [0.1]
-    var_0_arr = [1]
+    l_arr = [0.01, 0.1, 1, 10, 100]
+    var_0_arr = [0.01, 0.1, 1, 10, 100]
 
     N = len(l_arr)
     M = len(var_0_arr)
@@ -44,7 +44,7 @@ def ftr():
             l = l_arr[i]
             var_0 = var_0_arr[j]
 
-            print("l={} var_0={}\n".format(l, var_0))
+            print("l={} var_0={}".format(l, var_0))
             X_tilde_train = get_x_tilde(evaluate_basis_functions(l, X_train, X_train))
             X_tilde_test  = get_x_tilde(evaluate_basis_functions(l, X_test, X_train))
 
@@ -71,6 +71,8 @@ def ftr():
 
                 expansion_function = lambda x: evaluate_basis_functions(l, x, X_train)
                 plot_predictive_general(X, y, predict_laplace, expansion_function)
+
+    plot_heatmap(Z_matrix)
 
 
 if __name__ == "__main__":

@@ -32,10 +32,10 @@ def calc_hessian(X_tilde, w, var_0):
     return prior_term + likelihood_term 
 
 
-def calc_log_Z(log_f_max, hessian_inverse):
-    dim = hessian_inverse.shape[0]
-    det_A_inv = np.linalg.det(hessian_inverse)
-    log_Z =  log_f_max + (dim/2)* np.log(2*np.pi) + (1/2)*np.log(det_A_inv)
+def calc_log_Z(log_f_max, hessian):
+    dim = hessian.shape[0]
+    det_A = np.linalg.det(hessian)
+    log_Z =  log_f_max + (dim/2)* np.log(2*np.pi) - (1/2)*np.log(det_A)
     return log_Z
 
 
