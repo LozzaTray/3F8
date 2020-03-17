@@ -1,5 +1,6 @@
 """Module that contains plotting functions"""
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 from prob_utils import get_x_tilde, predict
 
@@ -112,6 +113,11 @@ def plot_ll(ll_training, ll_test, title=''):
     plt.ylabel('Average log-likelihood')
     plt.title(title)
     plt.legend()
+    plt.show()
+
+
+def plot_heatmap(matrix):
+    ax = sns.heatmap(matrix, linewidth=0.5)
     plt.show()
 
 
