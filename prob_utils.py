@@ -2,8 +2,16 @@ import numpy as np
 
 
 def logistic(x):
-    """Logistic function""" 
-    return 1.0 / (1.0 + np.exp(-x))
+    """Logistic function. If function overflows, returns 0 for that value"""
+    f = np.array([])
+    with np.errstate(all='raise'):
+        for i in x:
+            try:
+                val = 1.0 / (1.0 + np.exp(-i))
+            except FloatingPointError:
+                val = 0
+            f = np.append(f, val)
+    return f
 
 
 def predict(X_tilde, w):
