@@ -116,8 +116,10 @@ def plot_ll(ll_training, ll_test, title=''):
     plt.show()
 
 
-def plot_heatmap(matrix):
-    ax = sns.heatmap(matrix, linewidth=0.5)
+def plot_heatmap(matrix, xlabels, ylabels):
+    ax = sns.heatmap(matrix, linewidth=0.5, xticklabels=xlabels, yticklabels=ylabels, annot=True)
+    ax.set_xlabel("Initial variance (var_0)")
+    ax.set_ylabel("RBF Width (l)")
     plt.show()
 
 

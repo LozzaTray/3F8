@@ -1,4 +1,5 @@
 from prob_utils import logistic, predict
+import math
 import numpy as np
 from scipy import optimize
 from functools import partial
@@ -34,9 +35,18 @@ def calc_hessian(X_tilde, w, var_0):
 
 def calc_log_Z(log_f_max, hessian):
     dim = hessian.shape[0]
-    det_A = np.linalg.det(hessian)
-    log_Z =  log_f_max + (dim/2)* np.log(2*np.pi) - (1/2)*np.log(det_A)
+    (sign, log_det_A) = np.linalg.slogdet(hessian)
+    log_Z =  log_f_max + (dim/2) * np.log(2*np.pi) - (1/2) * log_det_A
     return log_Z
+
+
+def predictive_dist(A_inverse, w_map, X_tilde):
+    """Predictive distribution for a new matrix X"""
+    X_tilde_T = np.transpose(X_tilde)
+    var_a = np.diag(np.matmul(X_tilde, np.matmul(A_inverse, X_tilde_T)))
+    denominator = np.sqrt(1 + (np.pi / 8) * var_a)
+    numerator = np.dot(X_tilde, w_map)
+    return logistic(np.divide(numerator, denominator))
 
 
 def find_map(X_tilde, y, var_0):
@@ -56,14 +66,3 @@ def find_map(X_tilde, y, var_0):
     predictor_function = partial(predictive_dist, hessian_inverse, w_map)
     
     return w_map, log_Z, predictor_function
-
-
-def predictive_dist(A_inverse, w_map, X_tilde):
-    """Predictive distribution for a new matrix X"""
-    X_tilde_T = np.transpose(X_tilde)
-    var_a = np.diag(np.matmul(X_tilde, np.matmul(A_inverse, X_tilde_T)))
-    denominator = np.sqrt(1 + (np.pi / 8) * var_a)
-    numerator = np.dot(X_tilde, w_map)
-    return logistic(np.divide(numerator, denominator))
-
-
