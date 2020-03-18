@@ -12,7 +12,7 @@ def log_prior(w, var_0):
 
 def log_likelihood(X_tilde, y, w):
     output_prob = predict(X_tilde, w)
-    return np.sum(y * np.log(output_prob) + (1 - y) * np.log(1.0 - output_prob))
+    return np.sum(y * np.log(output_prob + 1E-6) + (1 - y) * np.log(1.0 - output_prob + 1E-6))
 
 
 def minus_log_f(X_tilde, y, var_0, w):

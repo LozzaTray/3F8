@@ -31,13 +31,13 @@ def ftr():
     n_train = 800
     X_train, y_train, X_test, y_test = randomly_partition(X, y, n_train)
 
-    #l_arr = [0.01, 0.1, 1, 10, 100]
-    #l_arr = [0.2, 0.25, 0.3, 0.35, 0.4]
-    l_arr = [0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.26]
+    l_arr = [0.1, 0.35]
+    #l_arr = [0.2, 0.25, 0.30, 0.35, 0.40]
+    #l_arr = [0.1, 0.3, 0.5, 0.7, 0.9]
     
-    #var_0_arr = [0.01, 0.1, 1, 10, 100]
-    #var_0_arr = [0.4, 0.55, 0.7, 0.85, 1.0]
-    var_0_arr = [0.4, 0.45, 0.50, 0.55, 0.6, 0.65, 0.7]
+    var_0_arr = [1, 0.5]
+    #var_0_arr = [0.45, 0.50, 0.55, 0.60, 0.65]
+    #var_0_arr = [0.1, 0.3, 0.5, 0.7, 0.9]
 
     N = len(l_arr)
     M = len(var_0_arr)
@@ -58,7 +58,7 @@ def ftr():
 
             print("Log Z = {}\n".format(log_Z))
 
-            verbose = False
+            verbose = True
             if(verbose):
                 predict_map = lambda X: predict(X_tilde=X, w=w_map)
 
@@ -75,7 +75,9 @@ def ftr():
                 display_metrics(probs_train_map, y_train, "Train map")
 
                 expansion_function = lambda x: evaluate_basis_functions(l, x, X_train)
-                plot_predictive_general(X, y, predict_laplace, expansion_function)
+                
+                plot_predictive_general(X, y, predict_map, expansion_function, title="MAP predictions (s^2, l)=({}, {})".format(var_0, l))
+                plot_predictive_general(X, y, predict_laplace, expansion_function, title="Laplace predictions (s^2, l)=({}, {})".format(var_0, l))
 
     plot_heatmap(Z_matrix, var_0_arr, l_arr)
 
